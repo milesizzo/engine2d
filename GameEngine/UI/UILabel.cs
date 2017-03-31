@@ -27,6 +27,7 @@ namespace GameEngine.UI
 
         private FontTemplate font;
         private string text;
+        private Vector2 textSize;
         public Color TextColour;
         public HTextAlign HorizontalAlignment = HTextAlign.Centre;
         public VTextAlign VerticalAlignment = VTextAlign.Middle;
@@ -35,6 +36,13 @@ namespace GameEngine.UI
 
         public UILabel() : base() { }
 
+        public override void Initialise()
+        {
+            base.Initialise();
+            this.Size.RelativeX = 1f;
+            this.Size.RelativeY = 1f;
+        }
+
         public FontTemplate Font
         {
             set
@@ -42,7 +50,8 @@ namespace GameEngine.UI
                 this.font = value;
                 if (this.font != null && this.text != null)
                 {
-                    this.MinimumSize = this.font.Font.MeasureString(this.text);
+                    this.textSize = this.font.Font.MeasureString(this.text);
+                    this.MinimumSize = this.textSize;
                 }
             }
             get { return this.font; }
@@ -55,7 +64,8 @@ namespace GameEngine.UI
                 this.text = value;
                 if (this.font != null && this.text != null)
                 {
-                    this.MinimumSize = this.font.Font.MeasureString(this.text);
+                    this.textSize = this.font.Font.MeasureString(this.text);
+                    this.MinimumSize = textSize;
                 }
             }
             get { return this.text; }
@@ -63,9 +73,9 @@ namespace GameEngine.UI
 
         protected override void Render(SpriteBatch screen)
         {
-            var min = this.MinimumSize;
+            var min = this.textSize;
             var topLeft = this.ScreenTopLeft;
-            var size = this.Size;
+            var size = this.AbsoluteSize;
             float x = 0;
             switch (this.HorizontalAlignment)
             {
@@ -73,10 +83,10 @@ namespace GameEngine.UI
                     x = 0;
                     break;
                 case HTextAlign.Right:
-                    x = topLeft.X + size.Width - min.Width;
+                    x = topLeft.X + size.X - min.X;
                     break;
                 case HTextAlign.Centre:
-                    x = topLeft.X + (size.Width / 2f) - (min.Width / 2f);
+                    x = topLeft.X + (size.X / 2f) - (min.X / 2f);
                     break;
             }
             float y = 0;
@@ -86,10 +96,10 @@ namespace GameEngine.UI
                     y = 0;
                     break;
                 case VTextAlign.Bottom:
-                    y = topLeft.Y + size.Height - min.Height;
+                    y = topLeft.Y + size.Y - min.Y;
                     break;
                 case VTextAlign.Middle:
-                    y = topLeft.Y + (size.Height / 2f) - (min.Height / 2f);
+                    y = topLeft.Y + (size.Y / 2f) - (min.Y / 2f);
                     break;
             }
             this.DrawString(screen, this.Font, this.Text, new Vector2(x, y), this.TextColour);

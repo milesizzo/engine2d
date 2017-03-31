@@ -85,6 +85,7 @@
     <Compile Include="Templates\Template.cs" />
     <Compile Include="Templates\TemplateStore.cs" />
     <Compile Include="UI\UIButton.cs" />
+    <Compile Include="UI\UIButtonGroup.cs" />
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\UILabel.cs" />
     <Compile Include="UI\UIPanel.cs" />

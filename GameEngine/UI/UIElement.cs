@@ -13,31 +13,76 @@ namespace GameEngine.UI
     public enum UIOrigin
     {
         TopLeft,
-        BottomRight,
+        TopCentre,
         TopRight,
         BottomLeft,
+        BottomCentre,
+        BottomRight,
         Centre
+    }
+
+    public struct UIPlacement
+    {
+        private float? x;
+        private float? y;
+        private float? relativeX;
+        private float? relativeY;
+
+        public float ToAbsoluteX(float scale)
+        {
+            if (this.x == null)
+            {
+                if (this.relativeX == null) return 0;
+                return scale * this.relativeX.Value;
+            }
+            return this.x.Value;
+        }
+
+        public float ToAbsoluteY(float scale)
+        {
+            if (this.y == null)
+            {
+                if (this.relativeY == null) return 0;
+                return scale * this.relativeY.Value;
+            }
+            return this.y.Value;
+        }
+
+        public bool IsEmpty
+        {
+            get { return this.x == null && this.y == null && this.relativeX == null && this.relativeY == null; }
+        }
+
+        public float X { get { return this.x ?? 0; } set { this.x = value; } }
+        public float Y { get { return this.y ?? 0; } set { this.y = value; } }
+        public float RelativeX { get { return this.relativeX ?? 0; } set { this.relativeX = value; } }
+        public float RelativeY { get { return this.relativeY ?? 0; } set { this.relativeY = value; } }
+    }
+
+    public static class UIDefaults
+    {
+        public static Color BackgroundColour = new Color(0.1f, 0.1f, 0.1f);
+        public static Color BorderColour = new Color(0.2f, 0.2f, 0.2f);
+        public static Vector2 Padding = Vector2.Zero;
     }
 
     public abstract class UIElement
     {
         private readonly List<UIElement> elements = new List<UIElement>();
-        private UIElement parent;
-        private Vector2? position;
-        private Size2? size;
+        private readonly UIElement parent;
+        public UIPlacement Placement;
+        public UIPlacement Size;
+        private Vector2? padding;
         private UIOrigin? origin;
         private Size2? minimumSize = null;
         public bool AllowSubPixelRendering = false;
 
-        protected UIElement()
-        {
-            this.Initialise();
-        }
+        protected UIElement() : this(null) { }
 
         protected UIElement(UIElement parent)
         {
             this.parent = parent;
-            this.parent.elements.Add(this);
+            if (this.parent != null) this.parent.elements.Add(this);
             this.Initialise();
         }
 
@@ -49,6 +94,7 @@ namespace GameEngine.UI
         public void Draw(SpriteBatch screen)
         {
             this.Render(screen);
+            //this.DrawRectangle(screen, this.ScreenTopLeft + this.Padding, new Size2(20, 20), Color.White, 1f);
             foreach (var child in this.elements)
             {
                 child.Draw(screen);
@@ -62,6 +108,12 @@ namespace GameEngine.UI
                 child.Update(gameTime);
             }
         }
+        
+        public virtual Vector2 Padding
+        {
+            get { return this.padding ?? UIDefaults.Padding; }
+            set { this.padding = value; }
+        }
 
         protected Vector2 ScreenTopLeft
         {
@@ -71,9 +123,8 @@ namespace GameEngine.UI
                 {
                     return this.TopLeft;
                 }
-                var parentTopLeft = this.parent.ScreenTopLeft;
-                var localTopLeft = this.TopLeft;
-                return new Vector2(parentTopLeft.X + localTopLeft.X, parentTopLeft.Y + localTopLeft.Y);
+                var parentTopLeft = this.parent.ScreenTopLeft + this.parent.Padding;
+                return parentTopLeft + this.TopLeft;
             }
         }
 
@@ -81,21 +132,46 @@ namespace GameEngine.UI
         {
             get
             {
+                var padding = this.Padding;
                 if (this.elements.Any())
                 {
-                    var max = this.elements.Max(e => e.MinimumSize);
+                    var max = new Size2();
+                    foreach (var element in this.elements)
+                    {
+                        // get the minimum size of the child element (plus our padding)
+                        var min = element.MinimumSize;
+                        min.Width += padding.X * 2;
+                        min.Height += padding.Y * 2;
+
+                        // get the current absolute size of the child element (plus our padding)
+                        var currX = element.Size.X + padding.X * 2;
+                        var currY = element.Size.Y + padding.Y * 2;
+
+                        // if the child size plus padding is bigger than the current max, set it
+                        if (min.Width > max.Width) max.Width = min.Width;
+                        if (currX > max.Width) max.Width = currX;
+                        if (min.Height > max.Height) max.Height = min.Height;
+                        if (currY > max.Height) max.Height = currY;
+                    }
                     if (this.minimumSize != null)
                     {
                         var min = this.minimumSize.Value;
-                        var width = (max.Width < min.Width) ? min.Width : max.Width;
-                        var height = (max.Height < min.Height) ? min.Height : max.Height;
-                        return new Size2(width, height);
+                        min.Width += padding.X * 2;
+                        min.Height += padding.Y * 2;
+
+                        if (min.Width > max.Width) max.Width = min.Width;
+                        if (min.Height > max.Height) max.Height = min.Height;
                     }
                     return max;
                 }
                 else
                 {
-                    return this.minimumSize ?? new Size2();
+                    var result = new Size2(padding.X * 2, padding.Y * 2);
+                    if (this.minimumSize != null)
+                    {
+                        result += this.minimumSize.Value;
+                    }
+                    return result;
                 }
             }
             protected set { this.minimumSize = value; }
@@ -107,48 +183,70 @@ namespace GameEngine.UI
             set { this.origin = value; }
         }
 
-        public Vector2 Position
+        private static float RelativeToAbsolute(float parent, float? relative, float? absolute)
         {
-            get { return this.position ?? Vector2.Zero; }
-            set { this.position = value; }
+            if (absolute == null)
+            {
+                if (relative == null) return 0;
+                return parent * relative.Value;
+            }
+            return absolute.Value;
         }
 
-        public Size2 Size
+        private Vector2 GetAbsolute(ref UIPlacement placement)
+        {
+            Vector2 parentSize;
+            if (this.parent == null)
+            {
+                parentSize = new Vector2(GraphicsDeviceManager.DefaultBackBufferWidth, GraphicsDeviceManager.DefaultBackBufferHeight);
+            }
+            else
+            {
+                parentSize = this.parent.AbsoluteSize;
+                parentSize -= this.parent.Padding * 2;
+            }
+            return new Vector2(placement.ToAbsoluteX(parentSize.X), placement.ToAbsoluteY(parentSize.Y));
+        }
+
+        public Vector2 AbsolutePosition
+        {
+            get { return this.GetAbsolute(ref this.Placement); }
+        }
+
+        public Vector2 AbsoluteSize
         {
             get
             {
+                var actual = this.GetAbsolute(ref this.Size);
                 var min = this.MinimumSize;
-                if (this.size == null) return min;
-                var size = this.size.Value;
-                var width = (size.Width < min.Width) ? min.Width : size.Width;
-                var height = (size.Height < min.Height) ? min.Height : size.Height;
-                return new Size2(width, height);
+                if (actual.X < min.Width) actual.X = min.Width;
+                if (actual.Y < min.Height) actual.Y = min.Height;
+                return actual;
             }
-            set { this.size = value; }
         }
-
-        public float Width { get { return this.Size.Width; } }
-
-        public float Height { get { return this.Size.Height; } }
 
         public Vector2 TopLeft
         {
             get
             {
-                var size = this.Size;
-                var pos = this.Position;
+                var size = this.AbsoluteSize;
+                var pos = this.AbsolutePosition;
                 switch (this.Origin)
                 {
                     case UIOrigin.TopLeft:
                         return pos;
+                    case UIOrigin.TopCentre:
+                        return new Vector2(pos.X - (size.X / 2f), pos.Y);
                     case UIOrigin.TopRight:
-                        return new Vector2(pos.X - size.Width, pos.Y);
-                    case UIOrigin.BottomRight:
-                        return new Vector2(pos.X - size.Width, pos.Y - size.Height);
+                        return new Vector2(pos.X - size.X, pos.Y);
                     case UIOrigin.BottomLeft:
-                        return new Vector2(pos.X, pos.Y - size.Height);
+                        return new Vector2(pos.X, pos.Y - size.Y);
+                    case UIOrigin.BottomCentre:
+                        return new Vector2(pos.X - (size.X / 2f), pos.Y - size.Y);
+                    case UIOrigin.BottomRight:
+                        return new Vector2(pos.X - size.X, pos.Y - size.Y);
                     case UIOrigin.Centre:
-                        return new Vector2(pos.X - (size.Width / 2f), pos.Y - (size.Height / 2f));
+                        return new Vector2(pos.X - (size.X / 2f), pos.Y - (size.Y / 2f));
                 }
                 return Vector2.Zero; // just to shut the compiler up
             }

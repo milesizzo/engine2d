@@ -20,8 +20,13 @@ namespace GameEngine.UI
         public override void Initialise()
         {
             base.Initialise();
+            this.Padding = Vector2.Zero;
             this.Border.Padding = 2;
             this.label = new UILabel(this);
+            this.label.Placement.RelativeX = 0.5f;
+            this.label.Placement.RelativeY = 0.5f;
+            //this.label.Size.RelativeX = 0.5f;
+            //this.label.Size.RelativeY = 0.5f;
             this.label.Origin = UIOrigin.Centre;
             this.label.HorizontalAlignment = UILabel.HTextAlign.Centre;
             this.label.VerticalAlignment = UILabel.VTextAlign.Middle;

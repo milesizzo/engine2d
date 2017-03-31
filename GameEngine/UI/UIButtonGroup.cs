@@ -29,7 +29,7 @@ namespace GameEngine.UI
             this.Padding = new Vector2(8f);
         }
 
-        public UIButton AddButton(FontTemplate font, string text, Color buttonColour, Color textColour)
+        public UIButton AddButton(FontTemplate font, string text, Color textColour)
         {
             var button = new UIButton(this);
             button.Origin = UIOrigin.TopCentre;
@@ -38,7 +38,6 @@ namespace GameEngine.UI
             button.Label.Text = text;
             button.Label.Font = font;
             button.Label.TextColour = textColour;
-            button.Colour = buttonColour;
             this.buttons.Add(button);
 
             var y = 0f;

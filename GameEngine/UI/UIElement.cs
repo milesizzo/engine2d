@@ -1,6 +1,7 @@
 ﻿using GameEngine.Templates;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
@@ -66,8 +67,31 @@ namespace GameEngine.UI
         public static Vector2 Padding = Vector2.Zero;
     }
 
+    public enum UIMouseButton
+    {
+        Left,
+        Right,
+        Middle,
+    }
+
+    public enum UIMouseButtonState
+    {
+        Pressed,
+        Released,
+        LostFocus,
+    }
+
+    public class UIMouseState
+    {
+        public UIElement Element;
+    }
+
+    public delegate void UIEventHandler(UIElement owner);
+    public delegate void MouseButtonEventHandler(UIElement owner, UIMouseButton button, UIMouseButtonState state);
+
     public abstract class UIElement
     {
+        public static Size2 ScreenDimensions;
         private readonly List<UIElement> elements = new List<UIElement>();
         private readonly UIElement parent;
         public UIPlacement Placement;
@@ -76,6 +100,20 @@ namespace GameEngine.UI
         private UIOrigin? origin;
         private Size2? minimumSize = null;
         public bool AllowSubPixelRendering = false;
+        public bool AcceptsInput = true;
+        public event UIEventHandler MouseEnter;
+        public event UIEventHandler MouseLeave;
+        public event MouseButtonEventHandler MouseButtonDown;
+        //public event MouseButtonEventHandler MouseButtonUp;
+        public event MouseButtonEventHandler MouseButtonPress;
+        public event MouseButtonEventHandler MouseButtonRelease;
+        private bool mouseColliding = false;
+        private Dictionary<UIMouseButton, UIMouseButtonState> mouseButtonState = new Dictionary<UIMouseButton, UIMouseButtonState>
+        {
+            {UIMouseButton.Left, UIMouseButtonState.Released},
+            {UIMouseButton.Right, UIMouseButtonState.Released},
+            {UIMouseButton.Middle, UIMouseButtonState.Released},
+        };
 
         protected UIElement() : this(null) { }
 
@@ -99,13 +137,79 @@ namespace GameEngine.UI
             {
                 child.Draw(screen);
             }
+            var mouse = Mouse.GetState();
+            screen.DrawLine(mouse.X, mouse.Y, mouse.X + 16, mouse.Y + 16, Color.White, 2);
+            screen.DrawLine(mouse.X, mouse.Y, mouse.X + 16, mouse.Y, Color.White, 2);
+            screen.DrawLine(mouse.X, mouse.Y, mouse.X, mouse.Y + 16, Color.White, 2);
+        }
+
+        private void HandleMouseButton(UIMouseButton button, UIMouseButtonState state)
+        {
+            if (this.mouseButtonState[button] != state)
+            {
+                // state change
+                switch (state)
+                {
+                    case UIMouseButtonState.Pressed:
+                        this.MouseButtonPress?.Invoke(this, button, state);
+                        break;
+                    case UIMouseButtonState.Released:
+                    case UIMouseButtonState.LostFocus:
+                        this.MouseButtonRelease?.Invoke(this, button, state);
+                        break;
+                }
+                this.mouseButtonState[button] = state;
+            }
+            else if (this.mouseButtonState[button] == UIMouseButtonState.Pressed)
+            {
+                this.MouseButtonDown?.Invoke(this, button, state);
+            }
+        }
+
+        private bool IsMouseColliding
+        {
+            get
+            {
+                var mouse = Mouse.GetState();
+                var mousePos = new Vector2(mouse.X, mouse.Y);
+                var stl = this.ScreenTopLeft;
+                var size = this.AbsoluteSize;
+                return (mousePos.X >= stl.X && mousePos.X < stl.X + size.X && mousePos.Y >= stl.Y && mousePos.Y < stl.Y + size.Y);
+            }
         }
 
         public virtual void Update(GameTime gameTime)
         {
+            var childMouseCollision = false;
             foreach (var child in this.elements)
             {
                 child.Update(gameTime);
+                childMouseCollision = childMouseCollision || child.mouseColliding;
+            }
+            if (childMouseCollision && this.mouseColliding)
+            {
+                this.mouseColliding = false;
+                this.MouseLeave?.Invoke(this);
+            }
+            else if (!childMouseCollision && this.AcceptsInput)
+            {
+                var localMouseColliding = this.IsMouseColliding;
+                if (this.mouseColliding)
+                {
+                    if (!localMouseColliding) 
+                    {
+                        this.mouseColliding = false;
+                        this.MouseLeave?.Invoke(this);
+                    }
+                }
+                else
+                {
+                    if (localMouseColliding) 
+                    {
+                        this.mouseColliding = true;
+                        this.MouseEnter?.Invoke(this);
+                    }
+                }
             }
         }
         
@@ -198,7 +302,7 @@ namespace GameEngine.UI
             Vector2 parentSize;
             if (this.parent == null)
             {
-                parentSize = new Vector2(GraphicsDeviceManager.DefaultBackBufferWidth, GraphicsDeviceManager.DefaultBackBufferHeight);
+                parentSize = UIElement.ScreenDimensions;
             }
             else
             {

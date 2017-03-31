@@ -41,7 +41,7 @@ namespace GameEngine.UI
 
     public class UIPanel : UIElement
     {
-        public Color Colour;
+        private Color colour;
         public Border Border;
 
         public UIPanel(UIElement parent) : base(parent) { }
@@ -66,6 +66,12 @@ namespace GameEngine.UI
             {
                 base.Padding = value;
             }
+        }
+
+        public virtual Color Colour
+        {
+            get { return this.colour; }
+            set { this.colour = value; }
         }
 
         protected override void Render(SpriteBatch screen)

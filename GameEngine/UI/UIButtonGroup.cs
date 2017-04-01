@@ -29,18 +29,20 @@ namespace GameEngine.UI
             this.Padding = new Vector2(8f);
         }
 
-        public UIButton AddButton(FontTemplate font, string text, Color textColour)
+        public UIButton AddButton(FontTemplate font, string text, Action onClick)
         {
             var button = new UIButton(this);
-            button.Origin = UIOrigin.TopCentre;
+            button.Origin = UIOrigin.Centre;
             button.Placement.RelativeX = 0.5f;
             button.Size.RelativeX = 0.8f;
             button.Label.Text = text;
             button.Label.Font = font;
-            button.Label.TextColour = textColour;
+            button.ButtonClick += (owner) => onClick();
             this.buttons.Add(button);
 
-            var y = 0f;
+            var count = this.buttons.Count;
+            var buffer = (this.AbsoluteSize.Y - (count * this.ButtonHeight) - (count - 1) * this.Spacing) / 2;
+            var y = buffer;
             for (var i = 0; i < this.buttons.Count; i++)
             {
                 var child = this.buttons[i];

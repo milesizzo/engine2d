@@ -1,4 +1,5 @@
-﻿using GameEngine.Templates;
+﻿using GameEngine.Graphics;
+using GameEngine.Templates;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -67,27 +68,7 @@ namespace GameEngine.UI
         public static Vector2 Padding = Vector2.Zero;
     }
 
-    public enum UIMouseButton
-    {
-        Left,
-        Right,
-        Middle,
-    }
-
-    public enum UIMouseButtonState
-    {
-        Pressed,
-        Released,
-        LostFocus,
-    }
-
-    public class UIMouseState
-    {
-        public UIElement Element;
-    }
-
     public delegate void UIEventHandler(UIElement owner);
-    public delegate void MouseButtonEventHandler(UIElement owner, UIMouseButton button, UIMouseButtonState state);
 
     public abstract class UIElement
     {
@@ -101,19 +82,12 @@ namespace GameEngine.UI
         private Size2? minimumSize = null;
         public bool AllowSubPixelRendering = false;
         public bool AcceptsInput = true;
+        public bool Enabled = true;
+        public bool Visible = true;
         public event UIEventHandler MouseEnter;
         public event UIEventHandler MouseLeave;
-        public event MouseButtonEventHandler MouseButtonDown;
-        //public event MouseButtonEventHandler MouseButtonUp;
-        public event MouseButtonEventHandler MouseButtonPress;
-        public event MouseButtonEventHandler MouseButtonRelease;
+        public event UIEventHandler MouseFocus;
         private bool mouseColliding = false;
-        private Dictionary<UIMouseButton, UIMouseButtonState> mouseButtonState = new Dictionary<UIMouseButton, UIMouseButtonState>
-        {
-            {UIMouseButton.Left, UIMouseButtonState.Released},
-            {UIMouseButton.Right, UIMouseButtonState.Released},
-            {UIMouseButton.Middle, UIMouseButtonState.Released},
-        };
 
         protected UIElement() : this(null) { }
 
@@ -131,42 +105,18 @@ namespace GameEngine.UI
 
         public void Draw(SpriteBatch screen)
         {
+            if (!this.Enabled) return;
+            if (!this.Visible) return;
+
             this.Render(screen);
             //this.DrawRectangle(screen, this.ScreenTopLeft + this.Padding, new Size2(20, 20), Color.White, 1f);
             foreach (var child in this.elements)
             {
                 child.Draw(screen);
             }
-            var mouse = Mouse.GetState();
-            screen.DrawLine(mouse.X, mouse.Y, mouse.X + 16, mouse.Y + 16, Color.White, 2);
-            screen.DrawLine(mouse.X, mouse.Y, mouse.X + 16, mouse.Y, Color.White, 2);
-            screen.DrawLine(mouse.X, mouse.Y, mouse.X, mouse.Y + 16, Color.White, 2);
         }
 
-        private void HandleMouseButton(UIMouseButton button, UIMouseButtonState state)
-        {
-            if (this.mouseButtonState[button] != state)
-            {
-                // state change
-                switch (state)
-                {
-                    case UIMouseButtonState.Pressed:
-                        this.MouseButtonPress?.Invoke(this, button, state);
-                        break;
-                    case UIMouseButtonState.Released:
-                    case UIMouseButtonState.LostFocus:
-                        this.MouseButtonRelease?.Invoke(this, button, state);
-                        break;
-                }
-                this.mouseButtonState[button] = state;
-            }
-            else if (this.mouseButtonState[button] == UIMouseButtonState.Pressed)
-            {
-                this.MouseButtonDown?.Invoke(this, button, state);
-            }
-        }
-
-        private bool IsMouseColliding
+        internal bool IsMouseColliding
         {
             get
             {
@@ -178,8 +128,15 @@ namespace GameEngine.UI
             }
         }
 
+        public Vector2 ScreenToLocal(Vector2 screen)
+        {
+            return screen - this.ScreenTopLeft;
+        }
+
         public virtual void Update(GameTime gameTime)
         {
+            if (!this.Enabled) return;
+
             var childMouseCollision = false;
             foreach (var child in this.elements)
             {
@@ -200,6 +157,10 @@ namespace GameEngine.UI
                     {
                         this.mouseColliding = false;
                         this.MouseLeave?.Invoke(this);
+                    }
+                    else
+                    {
+                        this.MouseFocus?.Invoke(this);
                     }
                 }
                 else

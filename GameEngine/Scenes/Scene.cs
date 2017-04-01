@@ -5,9 +5,11 @@ using GameEngine.Templates;
 
 namespace GameEngine.Scenes
 {
+    public delegate void SceneEndedHandler(IScene scene);
+
     public interface IScene : ITemplate
     {
-        Camera Camera { get; }
+        event SceneEndedHandler SceneEnd;
 
         bool SceneEnded { get; }
 
@@ -15,6 +17,10 @@ namespace GameEngine.Scenes
 
         void Update(GameTime gameTime);
 
+        void PreDraw(Renderer renderer);
+
         void Draw(Renderer renderer);
+
+        void PostDraw(Renderer renderer);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,16 @@ using System.Threading.Tasks;
 
 namespace GameEngine.UI
 {
+    public delegate void UIButtonClicked(UIButton button);
+
     public class UIButton : UIPanel
     {
         private UILabel label;
         private bool highlighted;
+        private bool clicked;
         public Color HighlightColour;
+        public Color ClickedColour;
+        public event UIButtonClicked ButtonClick;
 
         public UIButton(UIElement parent) : base(parent) { }
 
@@ -23,6 +29,7 @@ namespace GameEngine.UI
         {
             base.Initialise();
             this.HighlightColour = Color.DarkRed;
+            this.ClickedColour = Color.Red;
             this.Colour = Color.DarkBlue;
             this.Padding = Vector2.Zero;
             this.Border.Padding = 2;
@@ -33,22 +40,35 @@ namespace GameEngine.UI
             this.label.HorizontalAlignment = UILabel.HTextAlign.Centre;
             this.label.VerticalAlignment = UILabel.VTextAlign.Middle;
             this.label.AcceptsInput = false;
+            this.label.TextColour = Color.Yellow;
 
             this.MouseEnter += (owner) =>
             {
-                (owner as UIButton).highlighted = true;
+                this.highlighted = true;
             };
             this.MouseLeave += (owner) =>
             {
-                (owner as UIButton).highlighted = false;
+                this.highlighted = false;
+                this.clicked = false;
             };
-            this.MouseButtonPress += (owner, button, state) =>
+            this.MouseFocus += (owner) =>
             {
-                this.Label.Text = $"{button} pressed ({state})";
-            };
-            this.MouseButtonRelease += (owner, button, state) =>
-            {
-                this.Label.Text = $"{button} released ({state})";
+                var mouse = Mouse.GetState();
+                if (mouse.LeftButton == ButtonState.Pressed)
+                {
+                    if (!this.clicked)
+                    {
+                        this.clicked = true;
+                    }
+                }
+                else
+                {
+                    if (this.clicked)
+                    {
+                        this.clicked = false;
+                        this.ButtonClick?.Invoke(this);
+                    }
+                }
             };
         }
 
@@ -58,7 +78,15 @@ namespace GameEngine.UI
         {
             get
             {
-                return this.highlighted ? this.HighlightColour : base.Colour;
+                if (this.clicked)
+                {
+                    return this.ClickedColour;
+                }
+                else if (this.highlighted)
+                {
+                    return this.HighlightColour;
+                }
+                return base.Colour;
             }
 
             set

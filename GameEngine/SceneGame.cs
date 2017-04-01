@@ -10,8 +10,8 @@ namespace GameEngine
 {
     public class SceneGame : Game
     {
+        private readonly TemplateStore<IScene> scenes = new TemplateStore<IScene>();
         private IScene currentScene;
-        private TemplateStore<IScene> scenes;
         private Renderer renderer;
         private double frameRate;
         private readonly Store store;
@@ -19,7 +19,6 @@ namespace GameEngine
         public SceneGame()
         {
             this.renderer = new Renderer(this);
-            this.scenes = new TemplateStore<IScene>();
 
             this.Content.RootDirectory = "Content";
             this.store = new Store(this.Content);
@@ -28,11 +27,22 @@ namespace GameEngine
         protected IScene CurrentScene
         {
             get { return this.currentScene; }
+            set
+            {
+                this.currentScene = value;
+                this.currentScene.SetUp();
+            }
         }
 
         protected TemplateStore<IScene> Scenes
         {
             get { return this.scenes; }
+        }
+
+        protected void SetCurrentScene(string name)
+        {
+            this.currentScene = this.Scenes[name];
+            this.currentScene.SetUp();
         }
 
         protected double FPS
@@ -45,19 +55,20 @@ namespace GameEngine
             get { return this.store; }
         }
 
-        protected void SetCurrentScene(string name)
-        {
-            this.currentScene = this.Scenes[name];
-            this.currentScene.SetUp();
-        }
-
         protected override void Update(GameTime gameTime)
         {
             if (this.currentScene != null)
             {
                 if (this.IsActive)
                 {
-                    this.currentScene.Update(gameTime);
+                    if (this.currentScene.SceneEnded)
+                    {
+                        this.currentScene = null;
+                    }
+                    else
+                    {
+                        this.currentScene.Update(gameTime);
+                    }
                 }
             }
             base.Update(gameTime);
@@ -72,7 +83,7 @@ namespace GameEngine
 
             if (this.currentScene != null)
             {
-                this.renderer.Begin(this.currentScene.Camera);
+                this.currentScene.PreDraw(this.renderer);
                 try
                 {
                     this.currentScene.Draw(this.renderer);
@@ -80,7 +91,7 @@ namespace GameEngine
                 }
                 finally
                 {
-                    this.renderer.End();
+                    this.currentScene.PostDraw(this.renderer);
                 }
             }
             base.Draw(gameTime);

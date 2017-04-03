@@ -44,7 +44,7 @@ namespace GameEngine.Scenes
         public override void PreDraw(Renderer renderer)
         {
             base.PreDraw(renderer);
-            renderer.World.Begin(blendState: BlendState.NonPremultiplied, transformMatrix: camera.GetViewMatrix());
+            renderer.World.Begin(blendState: BlendState.NonPremultiplied, transformMatrix: this.camera.GetViewMatrix(), samplerState: this.camera.SamplerState);
         }
 
         public override void Draw(Renderer renderer)

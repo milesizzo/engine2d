@@ -5,12 +5,13 @@ using Microsoft.Xna.Framework.Graphics;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using GameEngine.Graphics;
+using System;
 
 namespace GameEngine.Templates
 {
     public abstract class SpriteTemplate : ITemplate
     {
-        public Vector2 Origin;
+        private Vector2 origin;
         public int FPS = 5;
         private Shape shape;
         private readonly string name;
@@ -56,12 +57,28 @@ namespace GameEngine.Templates
             }
         }
 
-        public virtual void DrawSprite(SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        public virtual Vector2 Origin
         {
-            sb.Draw(this.Texture, position, null, colour, rotation, this.Origin, scale, effects, 0f);
+            get { return this.origin; }
+            set { this.origin = value; }
         }
 
-        public abstract void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects);
+        public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        {
+            this.DrawSprite(sb, frame, position, colour, rotation, scale, effects, 0f);
+        }
+
+        public void DrawSprite(SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        {
+            this.DrawSprite(sb, 0, position, colour, rotation, scale, effects, 0f);
+        }
+
+        public void DrawSprite(SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale)
+        {
+            this.DrawSprite(sb, 0, position, colour, rotation, scale, SpriteEffects.None, 0f);
+        }
+
+        public abstract void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth);
     }
 
     public class AnimatedSpriteTemplate : SpriteTemplate
@@ -107,85 +124,129 @@ namespace GameEngine.Templates
             this.textures.Add(texture);
         }
 
-        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
         {
-            sb.Draw(this.textures[frame], position, null, colour, rotation, this.Origin, scale, effects, 0f);
+            sb.Draw(this.textures[frame], position, null, colour, rotation, this.Origin, scale, effects, depth);
         }
     }
 
-    public class AnimatedSpriteSheetTemplate : SpriteTemplate
+    public class SingleSpriteFromSheetTemplate : SpriteTemplate
     {
-        private Texture2D texture;
-        private readonly int width;
-        private readonly int height;
-        private readonly int gridWidth;
-        private readonly int gridHeight;
-        private readonly int border;
-        private readonly int numFrames;
+        private readonly SpriteSheetTemplate parent;
+        private readonly Rectangle source;
 
-        public AnimatedSpriteSheetTemplate(string name, Texture2D texture, int width, int height, int border = -1, int numFrames = -1) : base(name)
+        public SingleSpriteFromSheetTemplate(string name, SpriteSheetTemplate parent, Rectangle source) : base($"{parent.Name}.{name}")
         {
-            this.width = width;
-            this.height = height;
-            this.texture = texture;
-            if (border < 0)
-            {
-                if (this.texture.Width % this.width != 0)
-                {
-                    // there is probably a border around each sprite
-                    // TODO: detect borders of width > 1
-                    this.border = 1;
-                }
-                else
-                {
-                    this.border = 0;
-                }
-            }
-            else
-            {
-                this.border = border;
-            }
-            if (this.border == 0)
-            {
-                this.gridWidth = this.texture.Width / this.width;
-                this.gridHeight = this.texture.Height / this.height;
-            }
-            else
-            {
-                this.gridWidth = (this.texture.Width % this.width) - 1;
-                this.gridHeight = (this.texture.Height % this.height) - 1;
-            }
-            this.numFrames = numFrames == -1 ? this.gridWidth * this.gridHeight : numFrames;
-            this.Origin = new Vector2(this.width / 2, this.height / 2);
+            this.parent = parent;
+            this.source = source;
         }
 
-        public int Border { get { return this.border; } }
+        public override int NumberOfFrames { get { return 1; } }
 
-        public override int Width { get { return this.width; } }
-
-        public override int Height { get { return this.height; } }
-
-        public override int NumberOfFrames { get { return this.numFrames; } }
+        public override Vector2 Origin
+        {
+            get { return this.parent.Origin; }
+            set { throw new NotImplementedException(); }
+        }
 
         public override Texture2D Texture
         {
-            get
-            {
-                return this.texture;
-            }
-            set
-            {
-                this.texture = value;
-            }
+            get { return this.parent.Texture; }
+            set { throw new NotImplementedException(); }
         }
 
-        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        public void DrawSprite(SpriteBatch sb, Vector2 position, float depth)
         {
-            var x = (frame % this.gridWidth) * (this.width + this.border) + this.border;
-            var y = (frame / this.gridWidth) * (this.height + this.border) + this.border;
-            var rect = new Rectangle(x, y, this.width, this.height);
-            sb.Draw(this.texture, position, rect, colour, rotation, this.Origin, scale, effects, 0f);
+            this.DrawSprite(sb, 0, position, Color.White, 0, Vector2.One, SpriteEffects.None, depth);
         }
+
+        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
+        {
+            sb.Draw(this.Texture, position, this.source, colour, rotation, this.Origin, scale, effects, depth);
+        }
+    }
+
+    public class SpriteSheetTemplate : SpriteTemplate
+    {
+        private readonly Texture2D texture;
+        private readonly int spriteWidth;
+        private readonly int spriteHeight;
+        private readonly int border; // for serialization only
+        protected readonly List<SingleSpriteFromSheetTemplate> sprites = new List<SingleSpriteFromSheetTemplate>();
+
+        public SpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1) : base(name)
+        {
+            this.spriteWidth = spriteWidth;
+            this.spriteHeight = spriteHeight;
+            this.texture = texture;
+            if (border < 0)
+            {
+                if (this.texture.Width % this.spriteWidth != 0)
+                {
+                    // there is probably a border around each sprite
+                    // TODO: detect borders of width > 1
+                    border = 1;
+                }
+                else
+                {
+                    border = 0;
+                }
+            }
+            int gridWidth, gridHeight;
+            if (border == 0)
+            {
+                gridWidth = this.texture.Width / this.spriteWidth;
+                gridHeight = this.texture.Height / this.spriteHeight;
+            }
+            else
+            {
+                gridWidth = (this.texture.Width - border) % (this.spriteWidth + border);
+                gridHeight = (this.texture.Height - border) % (this.spriteHeight + border);
+            }
+            this.Origin = new Vector2(this.spriteWidth / 2, this.spriteHeight / 2);
+            for (var y = 0; y < gridHeight; y++)
+            {
+                for (var x = 0; x < gridWidth; x++)
+                {
+                    var source = new Rectangle(x * (this.spriteWidth + border) + border, y * (this.spriteHeight + border) + border, this.spriteWidth, this.spriteHeight);
+                    this.sprites.Add(new SingleSpriteFromSheetTemplate($"{this.sprites.Count}", this, source));
+                }
+            }
+            this.border = border;
+        }
+
+        public IReadOnlyList<SingleSpriteFromSheetTemplate> Sprites { get { return this.sprites; } }
+
+        public override int Width { get { return this.spriteWidth; } }
+
+        public override int Height { get { return this.spriteHeight; } }
+
+        public override int NumberOfFrames { get { return 1; } }
+
+        public int Border { get { return this.border; } } // for serialization only
+
+        public override Texture2D Texture
+        {
+            get { return this.texture; }
+            set { throw new NotImplementedException(); }
+        }
+
+        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
+        {
+            this.sprites[frame].DrawSprite(sb, 0, position, colour, rotation, scale, effects, depth);
+        }
+    }
+
+    public class AnimatedSpriteSheetTemplate : SpriteSheetTemplate
+    {
+        private readonly int numFrames;
+
+        public AnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1) : base(name, texture, spriteWidth, spriteHeight, border)
+        {
+            this.numFrames = numFrames == -1 ? this.Sprites.Count : numFrames;
+        }
+
+        public override int NumberOfFrames { get { return this.numFrames; } }
     }
 
     public class SingleSpriteTemplate : SpriteTemplate
@@ -212,9 +273,9 @@ namespace GameEngine.Templates
             }
         }
 
-        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
         {
-            this.DrawSprite(sb, position, colour, rotation, scale, effects);
+            sb.Draw(this.texture, position, null, colour, rotation, this.Origin, scale, effects, depth);
         }
     }
 }

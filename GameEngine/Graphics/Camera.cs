@@ -7,6 +7,7 @@ namespace GameEngine.Graphics
     public class Camera : Camera2D
     {
         private readonly GraphicsDevice graphics;
+        public SamplerState SamplerState = SamplerState.LinearClamp;
 
         public Camera(GraphicsDevice graphics) : base(graphics)
         {

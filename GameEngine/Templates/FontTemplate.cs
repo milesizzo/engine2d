@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Templates
 {
@@ -16,5 +17,10 @@ namespace GameEngine.Templates
         }
 
         public string Name { get { return this.name; } }
+
+        public void DrawString(SpriteBatch sb, Vector2 position, string text, Color colour)
+        {
+            sb.DrawString(this.Font, text, position, colour);
+        }
     }
 }

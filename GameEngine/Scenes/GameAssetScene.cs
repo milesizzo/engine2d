@@ -65,7 +65,7 @@ namespace GameEngine.Scenes
 
         public virtual void PreDraw(Renderer renderer)
         {
-            renderer.Screen.Begin(blendState: BlendState.NonPremultiplied);
+            renderer.Screen.Begin(blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp);
         }
 
         public virtual void Draw(Renderer renderer)

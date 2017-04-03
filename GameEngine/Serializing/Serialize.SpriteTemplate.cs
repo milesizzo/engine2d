@@ -24,7 +24,7 @@ namespace GameEngine.Serializing
 
             var asSingle = template as SingleSpriteTemplate;
             var asAnimated = template as AnimatedSpriteTemplate;
-            var asSheet = template as AnimatedSpriteSheetTemplate;
+            var asSheet = template as SpriteSheetTemplate;
 
             if (asSingle != null)
             {
@@ -37,12 +37,16 @@ namespace GameEngine.Serializing
             }
             else if (asSheet != null)
             {
-                context.Write("fps", template.FPS);
                 context.Write("texture", asSheet.Texture.Name);
                 context.Write("width", asSheet.Width);
                 context.Write("height", asSheet.Height);
                 context.Write("border", asSheet.Border);
-                context.Write("frames", asSheet.NumberOfFrames);
+                var asAnimatedSheet = asSheet as AnimatedSpriteSheetTemplate;
+                if (asAnimatedSheet != null)
+                {
+                    context.Write("fps", template.FPS);
+                    context.Write("frames", asSheet.NumberOfFrames);
+                }
             }
             else
             {
@@ -71,18 +75,25 @@ namespace GameEngine.Serializing
                     FPS = fps,
                 };
             }
-            else if (type == typeof(AnimatedSpriteSheetTemplate))
+            else if (type.IsAssignableFrom(typeof(SpriteSheetTemplate)))
             {
-                var fps = context.Read<int>("fps");
                 var texture = content.Load<Texture2D>(context.Read<string>("texture"));
-                var width = context.Read<int>("width"); 
-                var height = context.Read<int>("height"); 
-                var border = context.Read<int>("border"); 
-                var frames = context.Read<int>("frames");
-                template = new AnimatedSpriteSheetTemplate(name, texture, width, height, border, frames)
+                var width = context.Read<int>("width");
+                var height = context.Read<int>("height");
+                var border = context.Read<int>("border");
+                if (type == typeof(AnimatedSpriteSheetTemplate))
                 {
-                    FPS = fps,
-                };
+                    var fps = context.Read<int>("fps");
+                    var frames = context.Read<int>("frames");
+                    template = new AnimatedSpriteSheetTemplate(name, texture, width, height, border, frames)
+                    {
+                        FPS = fps,
+                    };
+                }
+                else
+                {
+                    template = new SpriteSheetTemplate(name, texture, width, height, border);
+                }
             }
             else
             {

@@ -22,7 +22,7 @@ namespace GameEngine.GameObjects
             set { this.sprite.TotalCycles = value ? 1 : 0; }
         }
 
-        public override void Draw(Renderer renderer)
+        public override void Draw(Renderer renderer, GameTime gameTime)
         {
             this.sprite.Draw(renderer, this.Position, Color.White, this.Rotation, Vector2.One, SpriteEffects.None);
             if (AbstractObject.DebugInfo)
@@ -34,7 +34,7 @@ namespace GameEngine.GameObjects
                 renderer.World.DrawString(font, $"position: {this.Position}", loc + new Vector2(0, -96 + 24), Color.White);
                 renderer.World.DrawString(font, $"collided: {this.NumCollisions}", loc + new Vector2(0, -96 + 36), Color.White);
             }
-            base.Draw(renderer);
+            base.Draw(renderer, gameTime);
         }
 
         public override void Update(GameTime gameTime)

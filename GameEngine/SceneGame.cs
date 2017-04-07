@@ -86,7 +86,7 @@ namespace GameEngine
                 this.currentScene.PreDraw(this.renderer);
                 try
                 {
-                    this.currentScene.Draw(this.renderer);
+                    this.currentScene.Draw(this.renderer, gameTime);
                     this.Draw(this.renderer);
                 }
                 finally

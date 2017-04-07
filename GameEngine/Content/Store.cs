@@ -131,9 +131,9 @@ namespace GameEngine.Content
             return this.Search<SpriteTemplate>(key);
         }
 
-        public SpriteTemplate Sprites(string assetStore, string name)
+        public T Sprites<T>(string assetStore, string name) where T : SpriteTemplate
         {
-            return this[assetStore].Sprites[name];
+            return this[assetStore].Sprites.Get<T>(name);
         }
     }
 }

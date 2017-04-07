@@ -15,6 +15,13 @@ namespace GameEngine.Serializing
 {
     public static partial class GameEngineSerialize
     {
+        private class FrameSet
+        {
+            public string Name;
+            public int FPS;
+            public IList<int> Frames;
+        }
+
         public static void Write(ISerializer context, SpriteTemplate template)
         {
             context.Write("name", template.Name);
@@ -47,6 +54,18 @@ namespace GameEngine.Serializing
                     context.Write("fps", template.FPS);
                     context.Write("frames", asSheet.NumberOfFrames);
                 }
+                var asNASS = asSheet as NamedAnimatedSpriteSheetTemplate;
+                if (asNASS != null)
+                {
+                    context.Write("fps", template.FPS);
+                    context.Write("frames", asNASS.NumberOfFrames);
+                    context.WriteList("animations", asNASS.Keys.Select(k => new FrameSet
+                    {
+                        Name = k,
+                        FPS = asNASS.GetAnimation(k).FPS,
+                        Frames = asNASS.Frames(k).ToList(),
+                    }).ToList(), Write);
+                }
             }
             else
             {
@@ -75,7 +94,7 @@ namespace GameEngine.Serializing
                     FPS = fps,
                 };
             }
-            else if (type.IsAssignableFrom(typeof(SpriteSheetTemplate)))
+            else if (type == typeof(SpriteSheetTemplate) || type.IsSubclassOf(typeof(SpriteSheetTemplate)))
             {
                 var texture = content.Load<Texture2D>(context.Read<string>("texture"));
                 var width = context.Read<int>("width");
@@ -90,6 +109,20 @@ namespace GameEngine.Serializing
                         FPS = fps,
                     };
                 }
+                else if (type == typeof(NamedAnimatedSpriteSheetTemplate))
+                {
+                    var fps = context.Read<int>("fps");
+                    var frames = context.Read<int>("frames");
+                    var nass = new NamedAnimatedSpriteSheetTemplate(name, texture, width, height, border, frames)
+                    {
+                        FPS = fps
+                    };
+                    foreach (var animation in context.ReadList<FrameSet>("animations", Read))
+                    {
+                        nass.AddAnimation(animation.Name, animation.FPS, animation.Frames);
+                    }
+                    template = nass;
+                }
                 else
                 {
                     template = new SpriteSheetTemplate(name, texture, width, height, border);
@@ -101,6 +134,23 @@ namespace GameEngine.Serializing
             }
             template.Shape = shape;
             template.Origin = origin;
+        }
+
+        private static void Write(ISerializer context, FrameSet frameSet)
+        {
+            context.Write("key", frameSet.Name);
+            context.Write("fps", frameSet.FPS);
+            context.Write("frames", frameSet.Frames);
+        }
+
+        private static void Read(IDeserializer context, out FrameSet frameSet)
+        {
+            frameSet = new FrameSet
+            {
+                Name = context.Read<string>("key"),
+                FPS = context.Read<int>("fps"),
+                Frames = context.ReadList<int>("frames"),
+            };
         }
     }
 }

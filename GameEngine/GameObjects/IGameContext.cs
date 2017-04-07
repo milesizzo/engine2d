@@ -19,7 +19,7 @@ namespace GameEngine.GameObjects
 
         void Update(GameTime gameTime);
 
-        void Draw(Renderer renderer);
+        void Draw(Renderer renderer, GameTime gameTime);
 
         IEnumerable<IGameObject> Objects { get; }
     }

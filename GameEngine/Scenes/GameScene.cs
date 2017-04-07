@@ -47,10 +47,10 @@ namespace GameEngine.Scenes
             renderer.World.Begin(blendState: BlendState.NonPremultiplied, transformMatrix: this.camera.GetViewMatrix(), samplerState: this.camera.SamplerState);
         }
 
-        public override void Draw(Renderer renderer)
+        public override void Draw(Renderer renderer, GameTime gameTime)
         {
-            base.Draw(renderer);
-            this.context.Draw(renderer);
+            base.Draw(renderer, gameTime);
+            this.context.Draw(renderer, gameTime);
         }
 
         public override void PostDraw(Renderer renderer)

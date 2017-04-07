@@ -68,7 +68,7 @@ namespace GameEngine.Scenes
             renderer.Screen.Begin(blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp);
         }
 
-        public virtual void Draw(Renderer renderer)
+        public virtual void Draw(Renderer renderer, GameTime gameTime)
         {
             this.ui.Draw(renderer);
         }

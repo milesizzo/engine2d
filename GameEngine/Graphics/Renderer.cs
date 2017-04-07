@@ -14,9 +14,9 @@ namespace GameEngine.Graphics
             this.Graphics = new GraphicsDeviceManager(game);
 
             // TODO: figure out how to make this configurable
-            this.Graphics.PreferredBackBufferWidth = 2560;
-            this.Graphics.PreferredBackBufferHeight = 1440;
-            //this.Graphics.IsFullScreen = true;
+            this.Graphics.PreferredBackBufferWidth = 1920;
+            this.Graphics.PreferredBackBufferHeight = 1200;
+            this.Graphics.IsFullScreen = false;
             this.Graphics.ApplyChanges();
 
             // NOTE! we can only create the SpriteBatch after the changes have been applied!

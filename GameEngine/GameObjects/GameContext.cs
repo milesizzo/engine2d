@@ -108,11 +108,11 @@ namespace GameEngine.GameObjects
             }
         }
 
-        public void Draw(Renderer renderer)
+        public void Draw(Renderer renderer, GameTime gameTime)
         {
             foreach (var obj in this.objects)
             {
-                obj.Draw(renderer);
+                obj.Draw(renderer, gameTime);
             }
         }
 

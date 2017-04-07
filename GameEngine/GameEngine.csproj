@@ -80,9 +80,13 @@
     <Compile Include="Serializing\Serialize.FontTemplate.cs" />
     <Compile Include="Serializing\Serialize.Shape.cs" />
     <Compile Include="Serializing\Serialize.SpriteTemplate.cs" />
+    <Compile Include="Templates\AnimatedSpriteSheetTemplate.cs" />
+    <Compile Include="Templates\AnimatedSpriteTemplate.cs" />
     <Compile Include="Templates\AudioTemplate.cs" />
     <Compile Include="Templates\FontTemplate.cs" />
     <Compile Include="Templates\GameObjectTemplate.cs" />
+    <Compile Include="Templates\SingleSpriteTemplate.cs" />
+    <Compile Include="Templates\SpriteSheetTemplate.cs" />
     <Compile Include="Templates\SpriteTemplate.cs" />
     <Compile Include="Templates\Template.cs" />
     <Compile Include="Templates\TemplateStore.cs" />

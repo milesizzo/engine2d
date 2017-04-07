@@ -19,7 +19,7 @@ namespace GameEngine.Scenes
 
         void PreDraw(Renderer renderer);
 
-        void Draw(Renderer renderer);
+        void Draw(Renderer renderer, GameTime gameTime);
 
         void PostDraw(Renderer renderer);
     }

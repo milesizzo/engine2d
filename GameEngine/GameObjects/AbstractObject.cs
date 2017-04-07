@@ -88,11 +88,11 @@ namespace GameEngine.GameObjects
             }
         }
 
-        public virtual void Draw(Renderer renderer)
+        public virtual void Draw(Renderer renderer, GameTime gameTime)
         {
             foreach (var child in this.children)
             {
-                child.Draw(renderer);
+                child.Draw(renderer, gameTime);
             }
         }
     }

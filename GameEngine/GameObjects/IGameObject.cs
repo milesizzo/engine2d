@@ -15,6 +15,8 @@ namespace GameEngine.GameObjects
 
         Vector2 Position { get; set; }
 
+        Vector3 Position3D { get; set; }
+
         Vector2 GetWorldPoint(Vector2 localPoint);
 
         Vector2 GetLocalPoint(Vector2 worldPoint);

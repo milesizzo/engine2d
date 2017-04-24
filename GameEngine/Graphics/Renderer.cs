@@ -17,6 +17,8 @@ namespace GameEngine.Graphics
             this.Graphics.PreferredBackBufferWidth = 1920;
             this.Graphics.PreferredBackBufferHeight = 1200;
             this.Graphics.IsFullScreen = false;
+            this.Graphics.PreferMultiSampling = false;
+            this.Graphics.SynchronizeWithVerticalRetrace = true;
             this.Graphics.ApplyChanges();
 
             // NOTE! we can only create the SpriteBatch after the changes have been applied!

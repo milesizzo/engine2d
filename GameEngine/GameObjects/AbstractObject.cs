@@ -43,6 +43,12 @@ namespace GameEngine.GameObjects
 
         public abstract Vector2 Position { get; set; }
 
+        public virtual Vector3 Position3D
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
         public IGameContext Context
         {
             get { return this.context; }

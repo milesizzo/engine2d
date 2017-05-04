@@ -16,6 +16,8 @@ namespace GameEngine.Content
             this.content = content;
         }
 
+        public ContentManager Content { get { return this.content; } }
+
         public void LoadFromJson(string filename)
         {
             using (var serializer = new MgiJsonSerializer(filename, SerializerMode.Read))
@@ -131,7 +133,7 @@ namespace GameEngine.Content
             return this.Search<SpriteTemplate>(key);
         }
 
-        public T Sprites<T>(string assetStore, string name) where T : SpriteTemplate
+        public T Sprites<T>(string assetStore, string name) where T : class, ISpriteTemplate
         {
             return this[assetStore].Sprites.Get<T>(name);
         }

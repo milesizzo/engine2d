@@ -39,6 +39,12 @@ namespace GameEngine.Templates
                 this.fpsOverride = fps;
             }
 
+            public Shape Shape
+            {
+                get { throw new InvalidOperationException(); }
+                set { throw new InvalidOperationException(); }
+            }
+
             public string Name { get { return $"{this.owner.Name}.{this.key}"; } }
 
             public int FPS

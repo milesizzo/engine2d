@@ -36,7 +36,7 @@ namespace GameEngine.Content
 
         internal virtual void Read(IDeserializer context)
         {
-            var sprites = context.ReadList<SpriteTemplate, ContentManager>("sprites", this.Content, GameEngineSerialize.Read);
+            var sprites = context.ReadList<ISpriteTemplate, ContentManager>("sprites", this.Content, GameEngineSerialize.Read);
             this.Sprites.AddOrReplace(sprites);
 
             var audio = context.ReadList<AudioTemplate, ContentManager>("audio", this.Content, GameEngineSerialize.Read);

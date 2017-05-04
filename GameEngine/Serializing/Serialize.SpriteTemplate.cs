@@ -22,12 +22,11 @@ namespace GameEngine.Serializing
             public IList<int> Frames;
         }
 
-        public static void Write(ISerializer context, SpriteTemplate template)
+        public static void Write(ISerializer context, ISpriteTemplate template)
         {
             context.Write("name", template.Name);
             context.Write("type", template.GetType().AssemblyQualifiedName);
             context.Write("origin", template.Origin, CommonSerialize.Write);
-            context.Write("shape", template.Shape, FarseerSerialize.Write);
 
             var asSingle = template as SingleSpriteTemplate;
             var asAnimated = template as AnimatedSpriteTemplate;
@@ -35,15 +34,18 @@ namespace GameEngine.Serializing
 
             if (asSingle != null)
             {
+                context.Write("shape", asSingle.Shape, FarseerSerialize.Write);
                 context.Write("texture", template.Texture.Name);
             }
             else if (asAnimated != null)
             {
+                context.Write("shape", asAnimated.Shape, FarseerSerialize.Write);
                 context.Write("fps", template.FPS);
                 context.WriteList("textures", asAnimated.Textures.Select(t => t.Name).ToList());
             }
             else if (asSheet != null)
             {
+                context.Write("shape", asSheet.Shape, FarseerSerialize.Write);
                 context.Write("texture", asSheet.Texture.Name);
                 context.Write("width", asSheet.Width);
                 context.Write("height", asSheet.Height);
@@ -73,7 +75,7 @@ namespace GameEngine.Serializing
             }
         }
 
-        public static void Read(ContentManager content, IDeserializer context, out SpriteTemplate template)
+        public static void Read(ContentManager content, IDeserializer context, out ISpriteTemplate template)
         {
             var name = context.Read<string>("name");
             var typeName = context.Read<string>("type");

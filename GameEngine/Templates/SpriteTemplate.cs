@@ -24,6 +24,8 @@ namespace GameEngine.Templates
         Vector2 Origin { get; set; }
 
         void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth);
+
+        Shape Shape { get; set; }
     }
 
     public abstract class SpriteTemplate : ISpriteTemplate
@@ -66,14 +68,8 @@ namespace GameEngine.Templates
 
         public Shape Shape
         {
-            get
-            {
-                return this.shape ?? this.DefaultShape;
-            }
-            set
-            {
-                this.shape = value;
-            }
+            get { return this.shape ?? this.DefaultShape; }
+            set { this.shape = value; }
         }
 
         public virtual Vector2 Origin

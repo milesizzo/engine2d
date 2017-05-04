@@ -6,7 +6,7 @@ using GameEngine.Templates;
 
 namespace GameEngine.Content
 {
-    public class SpriteStore : TemplateStore<SpriteTemplate>
+    public class SpriteStore : TemplateStore<ISpriteTemplate>
     {
         private ContentManager content;
         public ContentManager Content { get { return this.content; } }

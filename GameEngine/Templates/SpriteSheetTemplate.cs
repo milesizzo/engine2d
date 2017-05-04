@@ -101,8 +101,8 @@ namespace GameEngine.Templates
             }
             else
             {
-                gridWidth = (this.texture.Width - border) % (this.spriteWidth + border);
-                gridHeight = (this.texture.Height - border) % (this.spriteHeight + border);
+                gridWidth = (this.texture.Width - border) / (this.spriteWidth + border);
+                gridHeight = (this.texture.Height - border) / (this.spriteHeight + border);
             }
             this.Origin = new Vector2(this.spriteWidth / 2, this.spriteHeight / 2);
             for (var y = 0; y < gridHeight; y++)

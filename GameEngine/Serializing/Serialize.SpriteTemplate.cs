@@ -78,8 +78,24 @@ namespace GameEngine.Serializing
             var name = context.Read<string>("name");
             var typeName = context.Read<string>("type");
             var type = Type.GetType(typeName);
-            var origin = context.Read<Vector2>("origin", CommonSerialize.Read);
-            var shape = context.Read<Shape>("shape", FarseerSerialize.Read);
+            var origin = Vector2.Zero;
+            try
+            {
+                origin = context.Read<Vector2>("origin", CommonSerialize.Read);
+            }
+            catch
+            {
+                //
+            }
+            Shape shape = null;
+            try
+            {
+                shape = context.Read<Shape>("shape", FarseerSerialize.Read);
+            }
+            catch
+            {
+                //
+            }
             if (type == typeof(SingleSpriteTemplate))
             {
                 var assetName = context.Read<string>("texture");
@@ -132,7 +148,7 @@ namespace GameEngine.Serializing
             {
                 throw new InvalidOperationException($"Unknown sprite template type: {typeName}");
             }
-            template.Shape = shape;
+            if (shape != null) template.Shape = shape;
             template.Origin = origin;
         }
 

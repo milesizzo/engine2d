@@ -74,7 +74,7 @@ namespace GameEngine.GameObjects
             obj.OnDestroyed();
         }
 
-        public void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
             var i = 0;
             while (i < this.scheduled.Count)
@@ -108,7 +108,7 @@ namespace GameEngine.GameObjects
             }
         }
 
-        public void Draw(Renderer renderer, GameTime gameTime)
+        public virtual void Draw(Renderer renderer, GameTime gameTime)
         {
             foreach (var obj in this.objects)
             {

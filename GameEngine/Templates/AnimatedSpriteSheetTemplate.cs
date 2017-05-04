@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using FarseerPhysics.Collision.Shapes;
 
 namespace GameEngine.Templates
 {
@@ -22,29 +23,51 @@ namespace GameEngine.Templates
 
     public class NamedAnimatedSpriteSheetTemplate : SpriteSheetTemplate
     {
-        private class NASSWrapperTemplate : SpriteTemplate
+        private class NASSWrapperTemplate : ISpriteTemplate
         {
             private readonly NamedAnimatedSpriteSheetTemplate owner;
             private readonly int[] frames;
+            private readonly string key;
+            private int fpsOverride;
 
-            public NASSWrapperTemplate(string key, int[] frames, int fps, NamedAnimatedSpriteSheetTemplate owner) : base($"{owner.Name}.{key}")
+            public NASSWrapperTemplate(string key, int[] frames, int fps, NamedAnimatedSpriteSheetTemplate owner)
             {
+                this.key = key;
                 this.owner = owner;
                 this.frames = frames;
-                this.FPS = fps == 0 ? this.owner.FPS : fps;
+                //this.Shape = this.owner.Shape;
+                this.fpsOverride = fps;
             }
 
-            public override int NumberOfFrames { get { return this.frames.Length; } }
+            public string Name { get { return $"{this.owner.Name}.{this.key}"; } }
+
+            public int FPS
+            {
+                get { return this.fpsOverride == 0 ? this.owner.FPS : this.fpsOverride; }
+                set { this.fpsOverride = value; }
+            }
+
+            public int NumberOfFrames { get { return this.frames.Length; } }
 
             public IEnumerable<int> Frames { get { return this.frames; } }
 
-            public override Texture2D Texture
+            public Texture2D Texture
             {
                 get { return this.owner.Texture; }
                 set { throw new NotImplementedException(); }
             }
 
-            public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
+            public int Width { get { return this.owner.SpriteWidth; } }
+
+            public int Height { get { return this.owner.SpriteHeight; } }
+
+            public Vector2 Origin
+            {
+                get { return this.owner.Origin; }
+                set { throw new NotImplementedException(); }
+            }
+
+            public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
             {
                 this.owner.DrawSprite(sb, this.frames[frame], position, colour, rotation, scale, effects, depth);
             }
@@ -83,7 +106,7 @@ namespace GameEngine.Templates
             this.animations[key] = new NASSWrapperTemplate(key, frames.ToArray(), 0, this);
         }
 
-        public SpriteTemplate GetAnimation(string key)
+        public ISpriteTemplate GetAnimation(string key)
         {
             return this.animations[key];
         }

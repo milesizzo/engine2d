@@ -9,16 +9,33 @@ using System;
 
 namespace GameEngine.Templates
 {
-    public abstract class SpriteTemplate : ITemplate
+    public interface ISpriteTemplate : ITemplate
+    {
+        Texture2D Texture { get; set; }
+
+        int NumberOfFrames { get; }
+
+        int Width { get; }
+
+        int Height { get; }
+
+        int FPS { get; set; }
+
+        Vector2 Origin { get; set; }
+
+        void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth);
+    }
+
+    public abstract class SpriteTemplate : ISpriteTemplate
     {
         private Vector2 origin;
-        public int FPS = 5;
         private Shape shape;
         private readonly string name;
 
         protected SpriteTemplate(string name)
         {
             this.name = name;
+            this.FPS = 5;
         }
 
         public string Name { get { return this.name; } }
@@ -30,6 +47,8 @@ namespace GameEngine.Templates
         public virtual int Width { get { return this.Texture.Width; } }
 
         public virtual int Height { get { return this.Texture.Height; } }
+
+        public virtual int FPS { get; set; }
 
         public Shape DefaultShape
         {
@@ -63,21 +82,34 @@ namespace GameEngine.Templates
             set { this.origin = value; }
         }
 
-        public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
-        {
-            this.DrawSprite(sb, frame, position, colour, rotation, scale, effects, 0f);
-        }
-
-        public void DrawSprite(SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
-        {
-            this.DrawSprite(sb, 0, position, colour, rotation, scale, effects, 0f);
-        }
-
-        public void DrawSprite(SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale)
-        {
-            this.DrawSprite(sb, 0, position, colour, rotation, scale, SpriteEffects.None, 0f);
-        }
-
         public abstract void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth);
+    }
+
+    public static class SpriteTemplateExtensions
+    {
+        public static void DrawSprite(this ISpriteTemplate sprite, SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        {
+            sprite.DrawSprite(sb, frame, position, colour, rotation, scale, effects, 0f);
+        }
+
+        public static void DrawSprite(this ISpriteTemplate sprite, SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects)
+        {
+            sprite.DrawSprite(sb, 0, position, colour, rotation, scale, effects, 0f);
+        }
+
+        public static void DrawSprite(this ISpriteTemplate sprite, SpriteBatch sb, Vector2 position, Color colour, float rotation, Vector2 scale)
+        {
+            sprite.DrawSprite(sb, 0, position, colour, rotation, scale, SpriteEffects.None, 0f);
+        }
+
+        public static void DrawSprite(this ISpriteTemplate sprite, SpriteBatch sb, Vector2 position, float depth)
+        {
+            sprite.DrawSprite(sb, 0, position, Color.White, 0f, Vector2.One, SpriteEffects.None, depth);
+        }
+
+        public static void DrawSprite(this ISpriteTemplate sprite, SpriteBatch sb, int frame, Vector2 position, float depth)
+        {
+            sprite.DrawSprite(sb, frame, position, Color.White, 0f, Vector2.One, SpriteEffects.None, depth);
+        }
     }
 }

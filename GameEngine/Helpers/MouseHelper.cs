@@ -19,6 +19,25 @@ namespace GameEngine.Helpers
         private static Dictionary<MouseButton, bool> buttonHeld = new Dictionary<MouseButton, bool>();
         private static int? scrollValue = null;
 
+        public static bool ButtonDown(MouseButton button)
+        {
+            var mouse = Mouse.GetState();
+            var state = ButtonState.Released;
+            switch (button)
+            {
+                case MouseButton.Left:
+                    state = mouse.LeftButton;
+                    break;
+                case MouseButton.Middle:
+                    state = mouse.MiddleButton;
+                    break;
+                case MouseButton.Right:
+                    state = mouse.RightButton;
+                    break;
+            }
+            return state == ButtonState.Pressed;
+        }
+
         public static bool ButtonPressed(MouseButton button)
         {
             var mouse = Mouse.GetState();

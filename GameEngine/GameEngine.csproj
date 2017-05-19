@@ -95,6 +95,7 @@
     <Compile Include="UI\UIButtonGroup.cs" />
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\UILabel.cs" />
+    <Compile Include="UI\UILayout.cs" />
     <Compile Include="UI\UIPanel.cs" />
     <Compile Include="UI\UISystem.cs" />
   </ItemGroup>

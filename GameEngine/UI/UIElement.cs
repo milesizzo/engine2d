@@ -69,6 +69,7 @@ namespace GameEngine.UI
     }
 
     public delegate void UIEventHandler(UIElement owner);
+    public delegate void UIChildAddedHandler(UIElement owner, UIElement child);
 
     public abstract class UIElement
     {
@@ -87,6 +88,7 @@ namespace GameEngine.UI
         public event UIEventHandler MouseEnter;
         public event UIEventHandler MouseLeave;
         public event UIEventHandler MouseFocus;
+        public event UIChildAddedHandler ChildAdded;
         private bool mouseColliding = false;
 
         protected UIElement() : this(null) { }
@@ -94,7 +96,11 @@ namespace GameEngine.UI
         protected UIElement(UIElement parent)
         {
             this.parent = parent;
-            if (this.parent != null) this.parent.elements.Add(this);
+            if (this.parent != null)
+            {
+                this.parent.elements.Add(this);
+                this.parent.ChildAdded?.Invoke(this.parent, this);
+            }
             this.Initialise();
         }
 
@@ -193,7 +199,7 @@ namespace GameEngine.UI
             }
         }
 
-        public Size2 MinimumSize
+        public virtual Size2 MinimumSize
         {
             get
             {

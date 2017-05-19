@@ -21,6 +21,7 @@ namespace GameEngine.UI
         public UISystem(GraphicsDevice graphics)
         {
             this.graphics = graphics;
+            UIElement.ScreenDimensions = new Size2(this.graphics.Viewport.Width, this.graphics.Viewport.Height);
             this.enabled = false;
         }
 

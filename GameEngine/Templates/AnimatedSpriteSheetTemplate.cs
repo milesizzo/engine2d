@@ -81,21 +81,13 @@ namespace GameEngine.Templates
 
         private readonly Dictionary<string, NASSWrapperTemplate> animations = new Dictionary<string, NASSWrapperTemplate>();
         private readonly int numFrames;
-        private readonly int spriteWidth;
-        private readonly int spriteHeight;
 
         public NamedAnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1) : base(name, texture, spriteWidth, spriteHeight, border)
         {
-            this.spriteWidth = spriteWidth;
-            this.spriteHeight = spriteHeight;
             this.numFrames = numFrames == -1 ? (this.Width / this.SpriteWidth) * (this.Height / this.SpriteHeight) : numFrames;
         }
 
         public override int NumberOfFrames { get { return this.numFrames; } }
-
-        public int SpriteWidth { get { return this.spriteWidth; } }
-
-        public int SpriteHeight { get { return this.spriteHeight; } }
 
         public void AddAnimation(string key, int fps, params int[] frames)
         {

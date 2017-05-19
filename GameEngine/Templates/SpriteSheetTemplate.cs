@@ -5,42 +5,62 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FarseerPhysics.Collision.Shapes;
 
 namespace GameEngine.Templates
 {
-    public class SingleSpriteFromSheetTemplate : SpriteTemplate
+    public class SingleSpriteFromSheetTemplate : ISpriteTemplate
     {
         private readonly SpriteSheetTemplate parent;
         private readonly Rectangle source;
+        private readonly string name;
 
-        public SingleSpriteFromSheetTemplate(string name, SpriteSheetTemplate parent, Rectangle source) : base($"{parent.Name}.{name}")
+        public SingleSpriteFromSheetTemplate(string name, SpriteSheetTemplate parent, Rectangle source)
         {
+            this.name = $"{parent.Name}.{name}";
             this.parent = parent;
             this.source = source;
         }
 
-        public override int NumberOfFrames { get { return 1; } }
+        public int NumberOfFrames { get { return 1; } }
 
-        public override Vector2 Origin
+        public Vector2 Origin
         {
             get { return this.parent.Origin; }
             set { throw new NotImplementedException(); }
         }
 
-        public override int Width
+        public int Width
         {
-            get { return this.parent.Width; }
+            get { return this.parent.SpriteWidth; }
         }
 
-        public override int Height
+        public int Height
         {
-            get { return this.parent.Height; }
+            get { return this.parent.SpriteHeight; }
         }
 
-        public override Texture2D Texture
+        public Texture2D Texture
         {
             get { return this.parent.Texture; }
             set { throw new NotImplementedException(); }
+        }
+
+        public int FPS
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public Shape Shape
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public string Name
+        {
+            get { return this.name; }
         }
 
         public void GetData<T>(Rectangle? rect, T[] data, int start, int count) where T : struct
@@ -56,12 +76,7 @@ namespace GameEngine.Templates
             this.Texture.GetData(0, viewport, data, start, count);
         }
 
-        public void DrawSprite(SpriteBatch sb, Vector2 position, float depth)
-        {
-            this.DrawSprite(sb, 0, position, Color.White, 0, Vector2.One, SpriteEffects.None, depth);
-        }
-
-        public override void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
+        public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
         {
             sb.Draw(this.Texture, position, this.source, colour, rotation, this.Origin, scale, effects, depth);
         }
@@ -118,9 +133,9 @@ namespace GameEngine.Templates
 
         public IReadOnlyList<SingleSpriteFromSheetTemplate> Sprites { get { return this.sprites; } }
 
-        public override int Width { get { return this.spriteWidth; } }
+        public int SpriteWidth { get { return this.spriteWidth; } }
 
-        public override int Height { get { return this.spriteHeight; } }
+        public int SpriteHeight { get { return this.spriteHeight; } }
 
         public override int NumberOfFrames { get { return 1; } }
 

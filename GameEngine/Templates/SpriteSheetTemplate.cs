@@ -22,6 +22,10 @@ namespace GameEngine.Templates
             this.source = source;
         }
 
+        public SpriteSheetTemplate Parent { get { return this.parent; } }
+
+        public Rectangle Source { get { return this.source; } }
+
         public int NumberOfFrames { get { return 1; } }
 
         public Vector2 Origin
@@ -132,6 +136,11 @@ namespace GameEngine.Templates
         }
 
         public IReadOnlyList<SingleSpriteFromSheetTemplate> Sprites { get { return this.sprites; } }
+
+        public int IndexOf(SingleSpriteFromSheetTemplate sprite)
+        {
+            return this.sprites.IndexOf(sprite);
+        }
 
         public int SpriteWidth { get { return this.spriteWidth; } }
 

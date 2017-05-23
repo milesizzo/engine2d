@@ -128,9 +128,9 @@ namespace GameEngine.Content
             return this[assetStore].Audio[name];
         }
 
-        public SpriteTemplate Sprites(string key)
+        public ISpriteTemplate Sprites(string key)
         {
-            return this.Search<SpriteTemplate>(key);
+            return this.Search<ISpriteTemplate>(key);
         }
 
         public T Sprites<T>(string assetStore, string name) where T : class, ISpriteTemplate

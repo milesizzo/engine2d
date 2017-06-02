@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using FarseerPhysics.Collision.Shapes;
 using CommonLibrary.Serializing;
+using CommonLibrary;
 
 namespace GameEngine.Serializing
 {
@@ -20,6 +21,7 @@ namespace GameEngine.Serializing
             public string Name;
             public int FPS;
             public IList<int> Frames;
+            public SpriteEffects Effects;
         }
 
         public static void Write(ISerializer context, ISpriteTemplate template)
@@ -117,12 +119,19 @@ namespace GameEngine.Serializing
                 var texture = content.Load<Texture2D>(context.Read<string>("texture"));
                 var width = context.Read<int>("width");
                 var height = context.Read<int>("height");
-                var border = context.Read<int>("border");
+                var border = context.ReadOptional("border", 0);
+                var parseMethod = context.ReadOptional("method", "HorizontalFirst");
+                SpriteSheetTemplate.ParseMethod method;
+                if (!Enum.TryParse(parseMethod, out method))
+                {
+                    method = SpriteSheetTemplate.ParseMethod.HorizontalFirst;
+                }
+
                 if (type == typeof(AnimatedSpriteSheetTemplate))
                 {
                     var fps = context.Read<int>("fps");
                     var frames = context.Read<int>("frames");
-                    template = new AnimatedSpriteSheetTemplate(name, texture, width, height, border, frames)
+                    template = new AnimatedSpriteSheetTemplate(name, texture, width, height, border, frames, method)
                     {
                         FPS = fps,
                     };
@@ -131,19 +140,20 @@ namespace GameEngine.Serializing
                 {
                     var fps = context.Read<int>("fps");
                     var frames = context.Read<int>("frames");
-                    var nass = new NamedAnimatedSpriteSheetTemplate(name, texture, width, height, border, frames)
+                    var nass = new NamedAnimatedSpriteSheetTemplate(name, texture, width, height, border, frames, method)
                     {
                         FPS = fps
                     };
                     foreach (var animation in context.ReadList<FrameSet>("animations", Read))
                     {
-                        nass.AddAnimation(animation.Name, animation.FPS, animation.Frames);
+                        nass.AddAnimation(animation.Name, animation.FPS, animation.Frames, animation.Effects);
                     }
                     template = nass;
                 }
                 else
                 {
-                    template = new SpriteSheetTemplate(name, texture, width, height, border);
+                    var numSprites = context.ReadOptional("count", -1);
+                    template = new SpriteSheetTemplate(name, texture, width, height, border, numSprites, method);
                 }
             }
             else
@@ -159,15 +169,37 @@ namespace GameEngine.Serializing
             context.Write("key", frameSet.Name);
             context.Write("fps", frameSet.FPS);
             context.Write("frames", frameSet.Frames);
+            if (frameSet.Effects != SpriteEffects.None)
+            {
+                context.Write("effects", Enum.GetName(typeof(SpriteEffects), frameSet.Effects));
+            }
         }
 
         private static void Read(IDeserializer context, out FrameSet frameSet)
         {
+            var name = context.Read<string>("key");
+            var fps = context.Read<int>("fps");
+            var frames = context.ReadList<int>("frames");
+            string effects;
+            try
+            {
+                effects = context.Read<string>("effects");
+            }
+            catch
+            {
+                effects = "None";
+            }
+            SpriteEffects e;
+            if (!Enum.TryParse(effects, out e))
+            {
+                e = SpriteEffects.None;
+            }
             frameSet = new FrameSet
             {
-                Name = context.Read<string>("key"),
-                FPS = context.Read<int>("fps"),
-                Frames = context.ReadList<int>("frames"),
+                Name = name,
+                FPS = fps,
+                Frames = frames,
+                Effects = e
             };
         }
     }

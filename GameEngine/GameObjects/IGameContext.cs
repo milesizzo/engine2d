@@ -15,8 +15,6 @@ namespace GameEngine.GameObjects
 
         void Reset();
 
-        Store Store { get; }
-
         void Update(GameTime gameTime);
 
         void Draw(Renderer renderer, GameTime gameTime);

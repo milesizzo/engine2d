@@ -9,6 +9,8 @@ namespace GameEngine.Content
 {
     public class Store : TemplateStore<AssetStore>
     {
+        public static Store Instance;
+
         private readonly ContentManager content;
 
         public Store(ContentManager content)

@@ -15,6 +15,8 @@ namespace CommonLibrary.Serializing
 
     public interface IDeserializer
     {
+        T ReadOptional<T>(string key, T defaultValue);
+
         T Read<T>(string key);
 
         T Read<T>(string key, ReadAction<T> action);
@@ -63,6 +65,8 @@ namespace CommonLibrary.Serializing
         {
             return this.Read<T, Func<IDeserializer, T>>(key, reader, ReadFuncHelper);
         }
+
+        public abstract T ReadOptional<T>(string key, T defaultValue);
 
         public void ReadInto<T>(string key, T obj, Action<IDeserializer, T> reader)
         {

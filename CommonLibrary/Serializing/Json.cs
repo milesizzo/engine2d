@@ -19,6 +19,15 @@ namespace CommonLibrary.Serializing
             this.Current = current;
         }
 
+        public override T ReadOptional<T>(string key, T defaultValue)
+        {
+            if (this.Current.Property(key) == null)
+            {
+                return defaultValue;
+            }
+            return this.Read<T>(key);
+        }
+
         public override T Read<T>(string key)
         {
             return this.Current[key].Value<T>();

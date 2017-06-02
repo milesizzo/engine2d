@@ -10,6 +10,6 @@ namespace GameEngine.Scenes
 {
     public abstract class UIOnlyScene : GameAssetScene
     {
-        protected UIOnlyScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store) { }
+        protected UIOnlyScene(string name, GraphicsDevice graphics) : base(name, graphics) { }
     }
 }

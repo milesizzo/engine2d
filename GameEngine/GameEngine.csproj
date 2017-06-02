@@ -94,6 +94,7 @@
     <Compile Include="UI\UIButton.cs" />
     <Compile Include="UI\UIButtonGroup.cs" />
     <Compile Include="UI\UIElement.cs" />
+    <Compile Include="UI\UIImageGridPicker.cs" />
     <Compile Include="UI\UILabel.cs" />
     <Compile Include="UI\UILayout.cs" />
     <Compile Include="UI\UIPanel.cs" />

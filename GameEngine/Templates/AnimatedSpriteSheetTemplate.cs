@@ -13,7 +13,7 @@ namespace GameEngine.Templates
     {
         private readonly int numFrames;
 
-        public AnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1) : base(name, texture, spriteWidth, spriteHeight, border)
+        public AnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1, ParseMethod method = ParseMethod.HorizontalFirst) : base(name, texture, spriteWidth, spriteHeight, border, method: method)
         {
             this.numFrames = numFrames == -1 ? this.Sprites.Count : numFrames;
         }
@@ -28,15 +28,17 @@ namespace GameEngine.Templates
             private readonly NamedAnimatedSpriteSheetTemplate owner;
             private readonly int[] frames;
             private readonly string key;
+            private readonly SpriteEffects effects;
             private int fpsOverride;
 
-            public NASSWrapperTemplate(string key, int[] frames, int fps, NamedAnimatedSpriteSheetTemplate owner)
+            public NASSWrapperTemplate(string key, int[] frames, int fps, NamedAnimatedSpriteSheetTemplate owner, SpriteEffects effects = SpriteEffects.None)
             {
                 this.key = key;
                 this.owner = owner;
                 this.frames = frames;
                 //this.Shape = this.owner.Shape;
                 this.fpsOverride = fps;
+                this.effects = effects;
             }
 
             public Shape Shape
@@ -75,14 +77,14 @@ namespace GameEngine.Templates
 
             public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
             {
-                this.owner.DrawSprite(sb, this.frames[frame], position, colour, rotation, scale, effects, depth);
+                this.owner.DrawSprite(sb, this.frames[frame], position, colour, rotation, scale, this.effects | effects, depth);
             }
         }
 
         private readonly Dictionary<string, NASSWrapperTemplate> animations = new Dictionary<string, NASSWrapperTemplate>();
         private readonly int numFrames;
 
-        public NamedAnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1) : base(name, texture, spriteWidth, spriteHeight, border)
+        public NamedAnimatedSpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numFrames = -1, ParseMethod method = ParseMethod.HorizontalFirst) : base(name, texture, spriteWidth, spriteHeight, border, method: method)
         {
             this.numFrames = numFrames == -1 ? (this.Width / this.SpriteWidth) * (this.Height / this.SpriteHeight) : numFrames;
         }
@@ -94,9 +96,9 @@ namespace GameEngine.Templates
             this.animations[key] = new NASSWrapperTemplate(key, frames, fps, this);
         }
 
-        public void AddAnimation(string key, int fps, IEnumerable<int> frames)
+        public void AddAnimation(string key, int fps, IEnumerable<int> frames, SpriteEffects effects)
         {
-            this.animations[key] = new NASSWrapperTemplate(key, frames.ToArray(), fps, this);
+            this.animations[key] = new NASSWrapperTemplate(key, frames.ToArray(), fps, this, effects);
         }
 
         public void AddAnimation(string key, IEnumerable<int> frames)

@@ -88,13 +88,19 @@ namespace GameEngine.Templates
 
     public class SpriteSheetTemplate : SpriteTemplate
     {
+        public enum ParseMethod
+        {
+            VerticalFirst,
+            HorizontalFirst
+        }
+
         private readonly Texture2D texture;
         private readonly int spriteWidth;
         private readonly int spriteHeight;
         private readonly int border; // for serialization only
         protected readonly List<SingleSpriteFromSheetTemplate> sprites = new List<SingleSpriteFromSheetTemplate>();
 
-        public SpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1) : base(name)
+        public SpriteSheetTemplate(string name, Texture2D texture, int spriteWidth, int spriteHeight, int border = -1, int numSprites = -1, ParseMethod method = ParseMethod.HorizontalFirst) : base(name)
         {
             this.spriteWidth = spriteWidth;
             this.spriteHeight = spriteHeight;
@@ -124,15 +130,40 @@ namespace GameEngine.Templates
                 gridHeight = (this.texture.Height - border) / (this.spriteHeight + border);
             }
             this.Origin = new Vector2(this.spriteWidth / 2, this.spriteHeight / 2);
-            for (var y = 0; y < gridHeight; y++)
+            numSprites = numSprites == -1 ? gridWidth * gridHeight : numSprites;
+            var x = 0;
+            var y = 0;
+            do
             {
-                for (var x = 0; x < gridWidth; x++)
-                {
-                    var source = new Rectangle(x * (this.spriteWidth + border) + border, y * (this.spriteHeight + border) + border, this.spriteWidth, this.spriteHeight);
-                    this.sprites.Add(new SingleSpriteFromSheetTemplate($"{this.sprites.Count}", this, source));
-                }
-            }
+                var source = new Rectangle(x * (this.spriteWidth + border) + border, y * (this.spriteHeight + border) + border, this.spriteWidth, this.spriteHeight);
+                this.sprites.Add(new SingleSpriteFromSheetTemplate($"{this.sprites.Count}", this, source));
+            } while (this.Parse(ref x, ref y, ref numSprites, gridWidth, gridHeight, method));
             this.border = border;
+        }
+
+        private bool Parse(ref int x, ref int y, ref int numSprites, int gridWidth, int gridHeight, ParseMethod method)
+        {
+            switch (method)
+            {
+                case ParseMethod.HorizontalFirst:
+                    x++;
+                    if (x >= gridWidth)
+                    {
+                        x = 0;
+                        y++;
+                    }
+                    break;
+                case ParseMethod.VerticalFirst:
+                    y++;
+                    if (y >= gridHeight)
+                    {
+                        y = 0;
+                        x++;
+                    }
+                    break;
+            }
+            numSprites--;
+            return numSprites > 0;
         }
 
         public IReadOnlyList<SingleSpriteFromSheetTemplate> Sprites { get { return this.sprites; } }

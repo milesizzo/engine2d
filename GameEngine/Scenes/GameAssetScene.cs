@@ -16,28 +16,20 @@ namespace GameEngine.Scenes
     public abstract class GameAssetScene : IScene
     {
         private readonly GraphicsDevice graphics;
-        private readonly Store store;
         private readonly string name;
         private bool sceneEnded;
         private readonly UISystem ui;
         public event SceneEndedHandler SceneEnd;
 
-        protected GameAssetScene(string name, GraphicsDevice graphics, ContentManager content) : this(name, graphics, new Store(content))
-        {
-        }
-
-        protected GameAssetScene(string name, GraphicsDevice graphics, Store store)
+        protected GameAssetScene(string name, GraphicsDevice graphics)
         {
             this.name = name;
-            this.store = store;
             this.sceneEnded = false;
             this.ui = new UISystem(graphics);
             this.graphics = graphics;
         }
 
         public GraphicsDevice Graphics { get { return this.graphics; } }
-
-        public Store Store { get { return this.store; } }
 
         public string Name { get { return this.name; } }
 

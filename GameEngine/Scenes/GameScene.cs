@@ -14,11 +14,7 @@ namespace GameEngine.Scenes
         private T context;
         private readonly Camera camera;
 
-        protected GameScene(string name, GraphicsDevice graphics, ContentManager content) : this(name, graphics, new Store(content))
-        {
-        }
-
-        protected GameScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store)
+        protected GameScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
             this.camera = new Camera(graphics);
         }

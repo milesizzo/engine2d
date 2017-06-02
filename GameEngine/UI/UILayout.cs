@@ -28,11 +28,29 @@ namespace GameEngine.UI
             var size = this.AbsoluteSize;
             var width = size.X / MathHelper.Max(this.Elements.Count, this.MaximumColumns);
             var height = size.Y;
+
+            var fixedWidth = 0f;
+            var numUnfixed = 0;
+
+            foreach (var child in this.Elements)
+            {
+                var childMinWidth = child.MinimumSize.Width;
+                if (childMinWidth > width)
+                {
+                    fixedWidth += childMinWidth;
+                }
+                else
+                {
+                    numUnfixed++;
+                }
+            }
+            width = (size.X - fixedWidth) / numUnfixed;
+
             UIElement last = null;
             foreach (var child in this.Elements)
             {
-                child.Placement.X = last == null ? 0 : last.Placement.X + last.Size.X;
-                child.Size.X = width;
+                child.Placement.X = last == null ? 0 : last.Placement.X + last.AbsoluteSize.X;
+                child.Size.X = MathHelper.Max(width, child.MinimumSize.Width);
                 child.Size.Y = height;
                 last = child;
             }
@@ -64,12 +82,29 @@ namespace GameEngine.UI
             var size = this.AbsoluteSize;
             var height = size.Y / MathHelper.Max(this.Elements.Count, this.MaximumRows);
             var width = size.X;
+
+            var fixedHeight = 0f;
+            var numUnfixed = 0;
+            foreach (var child in this.Elements)
+            {
+                var childMinHeight = child.MinimumSize.Height;
+                if (childMinHeight > height)
+                {
+                    fixedHeight += childMinHeight;
+                }
+                else
+                {
+                    numUnfixed++;
+                }
+            }
+            height = (size.Y - fixedHeight) / numUnfixed;
+
             UIElement last = null;
             foreach (var child in this.Elements)
             {
-                child.Placement.Y = last == null ? 0 : last.Placement.Y + last.Size.Y;
+                child.Placement.Y = last == null ? 0 : last.Placement.Y + last.AbsoluteSize.Y;
                 child.Size.X = width;
-                child.Size.Y = height;
+                child.Size.Y = MathHelper.Max(height, child.MinimumSize.Height);
                 last = child;
             }
             base.Update(gameTime);

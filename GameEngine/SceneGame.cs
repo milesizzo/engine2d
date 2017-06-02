@@ -14,14 +14,13 @@ namespace GameEngine
         private IScene currentScene;
         private Renderer renderer;
         private double frameRate;
-        private readonly Store store;
 
         public SceneGame()
         {
             this.renderer = new Renderer(this);
 
             this.Content.RootDirectory = "Content";
-            this.store = new Store(this.Content);
+            Store.Instance = new Store(this.Content);
         }
         
         protected IScene CurrentScene
@@ -48,11 +47,6 @@ namespace GameEngine
         protected double FPS
         {
             get { return this.frameRate; }
-        }
-
-        protected Store Store
-        {
-            get { return this.store; }
         }
 
         protected override void Update(GameTime gameTime)

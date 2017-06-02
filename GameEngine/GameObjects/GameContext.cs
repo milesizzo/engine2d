@@ -16,12 +16,10 @@ namespace GameEngine.GameObjects
         }
 
         private readonly List<IGameObject> objects = new List<IGameObject>();
-        private readonly Store store;
         private readonly List<ScheduledObject> scheduled = new List<ScheduledObject>();
 
-        public GameContext(Store store)
+        public GameContext()
         {
-            this.store = store;
         }
 
         public void Reset()
@@ -33,8 +31,6 @@ namespace GameEngine.GameObjects
             this.objects.Clear();
             this.scheduled.Clear();
         }
-
-        public Store Store { get { return this.store; } }
 
         public int NumObjects { get { return this.objects.Count; } }
 

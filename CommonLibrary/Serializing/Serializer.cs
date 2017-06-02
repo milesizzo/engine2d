@@ -42,9 +42,9 @@ namespace CommonLibrary.Serializing
 
         void Write<T>(string key, T value, Action<ISerializer, T> writer);
 
-        void WriteList<T>(string key, IList<T> values);
+        void WriteList<T>(string key, IReadOnlyList<T> values);
 
-        void WriteList<T>(string key, IList<T> values, Action<ISerializer, T> writer);
+        void WriteList<T>(string key, IReadOnlyList<T> values, Action<ISerializer, T> writer);
     }
 
     public abstract class SerializerContext : IDeserializer, ISerializer
@@ -102,9 +102,9 @@ namespace CommonLibrary.Serializing
 
         public abstract void Write<T>(string key, T value, Action<ISerializer, T> writer);
 
-        public abstract void WriteList<T>(string key, IList<T> values);
+        public abstract void WriteList<T>(string key, IReadOnlyList<T> values);
 
-        public abstract void WriteList<T>(string key, IList<T> values, Action<ISerializer, T> writer);
+        public abstract void WriteList<T>(string key, IReadOnlyList<T> values, Action<ISerializer, T> writer);
     }
 
     public enum SerializerMode

@@ -76,7 +76,7 @@ namespace CommonLibrary.Serializing
             this.Current[key] = context.Current;
         }
 
-        public override void WriteList<T>(string key, IList<T> values)
+        public override void WriteList<T>(string key, IReadOnlyList<T> values)
         {
             var obj = new JArray();
             foreach (var item in values)
@@ -86,7 +86,7 @@ namespace CommonLibrary.Serializing
             this.Current[key] = obj;
         }
 
-        public override void WriteList<T>(string key, IList<T> values, Action<ISerializer, T> writer)
+        public override void WriteList<T>(string key, IReadOnlyList<T> values, Action<ISerializer, T> writer)
         {
             var obj = new JArray();
             foreach (var item in values)

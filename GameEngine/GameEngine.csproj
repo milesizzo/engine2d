@@ -30,8 +30,8 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Extended, Version=0.6.359.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\engine2d\packages\MonoGame.Extended.0.6.359\lib\MonoGame.Extended.dll</HintPath>
+    <Reference Include="MonoGame.Extended, Version=0.6.377.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\platform\packages\MonoGame.Extended.0.6.377\lib\MonoGame.Extended.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MonoGame.Framework, Version=3.7.0.113, Culture=neutral, processorArchitecture=MSIL" />

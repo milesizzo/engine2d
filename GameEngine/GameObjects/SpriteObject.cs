@@ -12,7 +12,7 @@ namespace GameEngine.GameObjects
     {
         private Sprite sprite;
 
-        public SpriteObject(IGameContext context, World world, SpriteTemplate sprite) : base(context, world, sprite.Shape)
+        public SpriteObject(IGameContext context, World world, ISpriteTemplate sprite) : base(context, world, sprite.Shape)
         {
             this.sprite = new Sprite(sprite);
         }
@@ -48,7 +48,7 @@ namespace GameEngine.GameObjects
             base.Update(gameTime);
         }
 
-        public SpriteTemplate SpriteTemplate
+        public ISpriteTemplate SpriteTemplate
         {
             get { return this.sprite.Template; }
         }

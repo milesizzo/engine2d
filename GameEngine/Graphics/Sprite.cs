@@ -8,12 +8,12 @@ namespace GameEngine.Graphics
     public class Sprite
     {
         public const int InfiniteCycles = -1;
-        private readonly SpriteTemplate template;
+        private readonly ISpriteTemplate template;
         private float animFrame;
         private int animCyclesTotal;
         private int animCyclesCount;
 
-        public Sprite(SpriteTemplate template, int animCycles = InfiniteCycles)
+        public Sprite(ISpriteTemplate template, int animCycles = InfiniteCycles)
         {
             this.template = template;
             this.animFrame = 0;
@@ -48,7 +48,7 @@ namespace GameEngine.Graphics
             set { this.animCyclesTotal = value; }
         }
 
-        public SpriteTemplate Template
+        public ISpriteTemplate Template
         {
             get { return this.template; }
         }

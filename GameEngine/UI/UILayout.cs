@@ -11,8 +11,16 @@ namespace GameEngine.UI
     public class UIColumnLayout : UIElement
     {
         public int MaximumColumns;
+        private readonly List<float> widths = new List<float>();
 
-        public UIColumnLayout(UIElement parent) : base(parent) { }
+        public UIColumnLayout(UIElement parent, params float[] widths) : base(parent)
+        {
+            if (widths.Any())
+            {
+                if (widths.Sum() != 1f) throw new InvalidOperationException("Widths must sum to 1");
+                this.widths.AddRange(widths);
+            }
+        }
 
         public UIColumnLayout() : base() { }
 
@@ -26,6 +34,26 @@ namespace GameEngine.UI
         public override void Update(GameTime gameTime)
         {
             var size = this.AbsoluteSize;
+            if (!this.widths.Any())
+            {
+                foreach (var element in this.Elements)
+                {
+                    this.widths.Add(1f / this.Elements.Count);
+                }
+            }
+            if (this.widths.Count != this.Elements.Count) throw new InvalidOperationException("Number of elements must match number of widths");
+            var i = 0;
+            UIElement last = null;
+            foreach (var child in this.Elements)
+            {
+                child.Placement.X = last == null ? 0 : last.Placement.X + last.AbsoluteSize.X;
+                child.Size.X = this.widths[i] * size.X;
+                child.Size.Y = size.Y;
+                last = child;
+                i++;
+            }
+
+            /*
             var width = size.X / MathHelper.Max(this.Elements.Count, this.MaximumColumns);
             var height = size.Y;
 
@@ -54,6 +82,7 @@ namespace GameEngine.UI
                 child.Size.Y = height;
                 last = child;
             }
+            */
             base.Update(gameTime);
         }
 

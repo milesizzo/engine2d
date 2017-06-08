@@ -12,6 +12,8 @@ namespace GameEngine.Helpers
         Left,
         Right,
         Middle,
+        X1,
+        X2,
     }
 
     public static class MouseHelper
@@ -34,6 +36,12 @@ namespace GameEngine.Helpers
                 case MouseButton.Right:
                     state = mouse.RightButton;
                     break;
+                case MouseButton.X1:
+                    state = mouse.XButton1;
+                    break;
+                case MouseButton.X2:
+                    state = mouse.XButton2;
+                    break;
             }
             return state == ButtonState.Pressed;
         }
@@ -52,6 +60,12 @@ namespace GameEngine.Helpers
                     break;
                 case MouseButton.Right:
                     state = mouse.RightButton;
+                    break;
+                case MouseButton.X1:
+                    state = mouse.XButton1;
+                    break;
+                case MouseButton.X2:
+                    state = mouse.XButton2;
                     break;
             }
             if (state == ButtonState.Pressed)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.ViewportAdapters;
 
 namespace GameEngine.Graphics
 {
@@ -13,7 +14,7 @@ namespace GameEngine.Graphics
         {
             this.graphics = graphics;
         }
-
+        
         public Viewport Viewport
         {
             get { return this.graphics.Viewport; }

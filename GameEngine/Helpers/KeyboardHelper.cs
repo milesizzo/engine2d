@@ -23,5 +23,10 @@ namespace GameEngine.Helpers
             }
             return false;
         }
+
+        public static bool KeyDown(Keys key)
+        {
+            return Keyboard.GetState().IsKeyDown(key);
+        }
     }
 }
